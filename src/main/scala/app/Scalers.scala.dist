@@ -1,0 +1,23 @@
+package app
+
+import app.RabbitFlow.Queue
+
+object Scalers {
+  type QueueName = String
+  type Deployment = String
+  type QueueSize = Int
+  type DeploymentScale = Int
+  type Scaler = Queue => DeploymentScale
+
+  val scalers: Map[QueueName, (Deployment, Scaler)] = Map(
+    "queue_name" -> ("deployment-name", {
+      queue =>
+        val size = queue.messages
+        if (size > 0) {
+          (size.toDouble / 100).ceil.toInt.min(100).max(5)
+        } else {
+          0 // 0 если нет задач
+        }
+    })
+  )
+}

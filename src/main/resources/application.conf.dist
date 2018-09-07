@@ -1,0 +1,9 @@
+rabbitmq-management-api {
+  url = "http://1.2.3.4:15672"
+  username = "statistic"
+  password = "pass"
+}
+
+akka {
+  loglevel = "ERROR"
+}
