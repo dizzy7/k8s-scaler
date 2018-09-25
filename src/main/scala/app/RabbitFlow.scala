@@ -13,16 +13,15 @@ import io.circe.parser.decode
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object RabbitFlow {
-  case class MessagesDetails(rate: Float)
   case class Queue(name: String, messages: Int, messages_details: MessagesDetails)
-
+  case class MessagesDetails(rate: Float)
 
   private val rabbitConfig = Application.config.rabbitmqManagementApi
   private val rabbitUrl = s"${rabbitConfig.url}/api/queues/%2F/"
   private val auth = Authorization(headers.BasicHttpCredentials(rabbitConfig.username, rabbitConfig.password))
   private val request = HttpRequest(uri = rabbitUrl, headers = List(auth))
 
-  private val sourceRequest: Flow[Int, String, NotUsed] = Flow[Int].mapAsync(1) { i =>
+  private val sourceRequest: Flow[NotUsed, String, NotUsed] = Flow[NotUsed].mapAsync(1) { i =>
     Http().singleRequest(request).flatMap({ response => Unmarshal(response.entity).to[String] })
   }
 
@@ -33,7 +32,7 @@ object RabbitFlow {
     }
   }
 
-  val queueSourcesFlow: Flow[Int, Queue, NotUsed] =
+  val queueSourcesFlow: Flow[NotUsed, Queue, NotUsed] =
     sourceRequest
       .via(decodeResponse)
       .mapConcat(identity)

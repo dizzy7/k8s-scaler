@@ -1,5 +1,6 @@
 package app
 
+import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl._
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings, Supervision}
@@ -28,7 +29,7 @@ object Application extends App with LazyLogging {
     ActorMaterializerSettings(system).withSupervisionStrategy(decider)
   )
 
-  Source.tick(1.second, 60.seconds, 1)
+  Source.tick(1.second, 60.seconds, NotUsed)
     .via(RabbitFlow.queueSourcesFlow)
     .runWith(ScaleFlow.scaleSink)
 }
